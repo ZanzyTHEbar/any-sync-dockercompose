@@ -2,5 +2,17 @@
 FROM golang:1.23-alpine
 RUN apk add --no-cache bash yq
 RUN go install github.com/anyproto/any-sync-tools/anyconf@latest
+
+# Create a temporary directory for the script
+WORKDIR /tmp
+COPY docker-generateconfig/anyconf.sh /tmp/anyconf.sh
+RUN chmod +x /tmp/anyconf.sh
+
+# Create a wrapper script to run anyconf.sh and ensure output goes to /code
+RUN echo '#!/bin/bash' > /tmp/run-anyconf.sh && \
+    echo 'bash /tmp/anyconf.sh' >> /tmp/run-anyconf.sh && \
+    chmod +x /tmp/run-anyconf.sh
+
 WORKDIR /code
-ENTRYPOINT ["bash", "/code/docker-generateconfig/anyconf.sh"]
+
+ENTRYPOINT ["/tmp/run-anyconf.sh"]
