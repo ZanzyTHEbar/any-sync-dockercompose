@@ -28,27 +28,27 @@ echo "INFO: Generate config files for 3 nodes"
 for i in {0..2}; do
     cat \
         "${NETWORK_FILE}" \
-        docker-generateconfig/etc/common.yml \
+        /tmp/etc/common.yml \
         storage/docker-generateconfig/account${i}.yml \
-        docker-generateconfig/etc/node-$((i + 1)).yml \
+        /tmp/etc/node-$((i + 1)).yml \
         >"${DEST_PATH}/any-sync-node-$((i + 1))/config.yml"
 done
 
 echo "INFO: Generate config files for coordinator"
-cat "${NETWORK_FILE}" docker-generateconfig/etc/common.yml storage/docker-generateconfig/account3.yml docker-generateconfig/etc/coordinator.yml \
+cat "${NETWORK_FILE}" /tmp/etc/common.yml storage/docker-generateconfig/account3.yml /tmp/etc/coordinator.yml \
     >${DEST_PATH}/any-sync-coordinator/config.yml
 echo "INFO: Generate config files for filenode"
-cat "${NETWORK_FILE}" docker-generateconfig/etc/common.yml storage/docker-generateconfig/account4.yml docker-generateconfig/etc/filenode.yml \
+cat "${NETWORK_FILE}" /tmp/etc/common.yml storage/docker-generateconfig/account4.yml /tmp/etc/filenode.yml \
     >${DEST_PATH}/any-sync-filenode/config.yml
 echo "INFO: Generate config files for consensusnode"
-cat "${NETWORK_FILE}" docker-generateconfig/etc/common.yml storage/docker-generateconfig/account5.yml docker-generateconfig/etc/consensusnode.yml \
+cat "${NETWORK_FILE}" /tmp/etc/common.yml storage/docker-generateconfig/account5.yml /tmp/etc/consensusnode.yml \
     >${DEST_PATH}/any-sync-consensusnode/config.yml
 
 echo "INFO: Copy network file to coordinator directory"
 cp "storage/docker-generateconfig/nodesProcessed.yml" "${DEST_PATH}/any-sync-coordinator/network.yml"
 
 echo "INFO: Copy aws credentials config"
-cp "docker-generateconfig/etc/aws-credentials" "${DEST_PATH}/.aws/credentials"
+cp "/tmp/aws-credentials" "${DEST_PATH}/.aws/credentials"
 
 echo "INFO: Replace variables in config files"
 for PLACEHOLDER in AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY MINIO_BUCKET S3_ENDPOINT \
@@ -63,9 +63,9 @@ for PLACEHOLDER in AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY MINIO_BUCKET S3_ENDPO
     ANY_SYNC_COORDINATOR_DEFAULT_LIMITS_SPACE_MEMBERS_WRITE \
     ANY_SYNC_COORDINATOR_DEFAULT_LIMITS_SHARED_SPACES_LIMIT; do
     perl -i -pe "s|%${PLACEHOLDER}%|${!PLACEHOLDER}|g" \
-        "${DEST_PATH}/"/.aws/credentials \
+        "${DEST_PATH}"/.aws/credentials \
         "${NETWORK_FILE}" \
-        "${DEST_PATH}/"/*/*.yml
+        "${DEST_PATH}"/*/*.yml
 done
 
 echo "INFO: fix indent in yml files"
