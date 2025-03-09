@@ -11,7 +11,8 @@ for NODE_TYPE in node-1 node-2 node-3 filenode coordinator consensusnode; do
     mkdir -p "${DEST_PATH}/any-sync-${NODE_TYPE}"
 done
 
-echo "INFO: Create directory for aws credentials"
+echo "INFO: Create directory for aws credentials ${DEST_PATH}/.aws"
+# Create the directory for AWS credentials
 mkdir -p "${DEST_PATH}/.aws"
 
 echo "INFO: Configure external listen host"
