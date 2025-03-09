@@ -1,14 +1,15 @@
+version: '3.8'
+
 services:
-  # generate configs using the anyconf utility
   generateconfig-anyconf:
     build:
       context: .
       dockerfile: Dockerfile-generateconfig-anyconf
     volumes:
-      - ./:/code:Z
-      - "${STORAGE_DIR}:/code/storage:Z"
+      - code:/code
+      - storage:/code/storage
+    restart: "no"
 
-  # processing any-sync-* configs
   generateconfig-processing:
     depends_on:
       generateconfig-anyconf:
@@ -17,8 +18,9 @@ services:
       context: .
       dockerfile: Dockerfile-generateconfig-processing
     volumes:
-      - ./:/code:Z
-      - "${STORAGE_DIR}:/code/storage:Z"
+      - code:/code
+      - storage:/code/storage
+    restart: "no"
 
   mongo-1:
     depends_on:
@@ -28,7 +30,7 @@ services:
     restart: unless-stopped
     command: ["--replSet", "${MONGO_REPLICA_SET}", "--port", "${MONGO_1_PORT}"]
     volumes:
-      - "${STORAGE_DIR}/mongo-1:/data/db:Z"
+      - mongo_data:/data/db
     healthcheck:
       test: test $$(mongosh --port ${MONGO_1_PORT} --quiet --eval "try {rs.initiate({_id:'${MONGO_REPLICA_SET}',members:[{_id:0,host:\"mongo-1:${MONGO_1_PORT}\"}]})} catch(e) {rs.status().ok}") -eq 1
       interval: 10s
@@ -44,9 +46,9 @@ services:
     restart: unless-stopped
     command: ["redis-server", "--port", "${REDIS_PORT}", "--dir", "/data/", "--appendonly", "yes", "--maxmemory", "${REDIS_MAXMEMORY}", "--maxmemory-policy", "noeviction", "--protected-mode", "no", "--loadmodule", "/opt/redis-stack/lib/redisbloom.so"]
     volumes:
-      - "${STORAGE_DIR}/redis:/data:Z"
+      - redis_data:/data
     healthcheck:
-      test: [ "CMD", "redis-cli", "--raw", "-p", "${REDIS_PORT}", "incr", "ping" ]
+      test: ["CMD", "redis-cli", "--raw", "-p", "${REDIS_PORT}", "incr", "ping"]
       interval: 10s
       timeout: 30s
       retries: 3
@@ -61,9 +63,9 @@ services:
       mongo-1:
         condition: service_healthy
     volumes:
-      - ./etc/any-sync-coordinator:/etc/any-sync-coordinator:Z
+      - code:/code
+    command: ["/bin/any-sync-confapply", "-c", "/code/etc/any-sync-coordinator/config.yml", "-n", "/code/etc/any-sync-coordinator/network.yml", "-e"]
     restart: "no"
-    command: ["/bin/any-sync-confapply", "-c", "/etc/any-sync-coordinator/config.yml", "-n", "/etc/any-sync-coordinator/network.yml", "-e"]
 
   any-sync-coordinator:
     image: "ghcr.io/anyproto/any-sync-coordinator:${ANY_SYNC_COORDINATOR_VERSION}"
@@ -79,12 +81,8 @@ services:
       - "${ANY_SYNC_COORDINATOR_QUIC_PORT}:${ANY_SYNC_COORDINATOR_QUIC_PORT}/udp"
       - "${ANY_SYNC_COORDINATOR_METRIC_ADDR}:8000"
     volumes:
-      - ./etc/any-sync-coordinator:/etc/any-sync-coordinator:Z
-      - "${STORAGE_DIR}/networkStore/any-sync-coordinator:/networkStore:Z"
-    deploy:
-      resources:
-        limits:
-          memory: ${ANY_SYNC_DAEMONS_MEMORY_LIMIT:-}
+      - code:/code
+      - coordinator_network_store:/networkStore
     restart: unless-stopped
 
   any-sync-filenode:
@@ -99,13 +97,8 @@ services:
       - "${ANY_SYNC_FILENODE_QUIC_PORT}:${ANY_SYNC_FILENODE_QUIC_PORT}/udp"
       - "${ANY_SYNC_FILENODE_METRIC_ADDR}:8000"
     volumes:
-      - ./etc/any-sync-filenode:/etc/any-sync-filenode:Z
-      - ./etc/.aws:/root/.aws:ro
-      - "${STORAGE_DIR}/networkStore/any-sync-filenode:/networkStore:Z"
-    deploy:
-      resources:
-        limits:
-          memory: ${ANY_SYNC_DAEMONS_MEMORY_LIMIT:-}
+      - code:/code
+      - filenode_network_store:/networkStore
     restart: unless-stopped
 
   any-sync-node-1:
@@ -119,14 +112,10 @@ services:
       - "${ANY_SYNC_NODE_1_API_SERVER_ADDR}:8080"
       - "${ANY_SYNC_NODE_1_METRIC_ADDR}:8000"
     volumes:
-      - ./etc/any-sync-node-1:/etc/any-sync-node:Z
-      - "${STORAGE_DIR}/any-sync-node-1:/storage:Z"
-      - "${STORAGE_DIR}/anyStorage/any-sync-node-1:/anyStorage:Z"
-      - "${STORAGE_DIR}/networkStore/any-sync-node-1:/networkStore:Z"
-    deploy:
-      resources:
-        limits:
-          memory: ${ANY_SYNC_DAEMONS_MEMORY_LIMIT:-}
+      - code:/code
+      - node1_storage:/storage
+      - node1_any_storage:/anyStorage
+      - node1_network_store:/networkStore
     restart: unless-stopped
 
   any-sync-node-2:
@@ -140,14 +129,10 @@ services:
       - "${ANY_SYNC_NODE_2_API_SERVER_ADDR}:8080"
       - "${ANY_SYNC_NODE_2_METRIC_ADDR}:8000"
     volumes:
-      - ./etc/any-sync-node-2:/etc/any-sync-node:Z
-      - "${STORAGE_DIR}/any-sync-node-2:/storage:Z"
-      - "${STORAGE_DIR}/anyStorage/any-sync-node-2:/anyStorage:Z"
-      - "${STORAGE_DIR}/networkStore/any-sync-node-2:/networkStore:Z"
-    deploy:
-      resources:
-        limits:
-          memory: ${ANY_SYNC_DAEMONS_MEMORY_LIMIT:-}
+      - code:/code
+      - node2_storage:/storage
+      - node2_any_storage:/anyStorage
+      - node2_network_store:/networkStore
     restart: unless-stopped
 
   any-sync-node-3:
@@ -161,14 +146,10 @@ services:
       - "${ANY_SYNC_NODE_3_API_SERVER_ADDR}:8080"
       - "${ANY_SYNC_NODE_3_METRIC_ADDR}:8000"
     volumes:
-      - ./etc/any-sync-node-3:/etc/any-sync-node:Z
-      - "${STORAGE_DIR}/any-sync-node-3:/storage:Z"
-      - "${STORAGE_DIR}/anyStorage/any-sync-node-3:/anyStorage:Z"
-      - "${STORAGE_DIR}/networkStore/any-sync-node-3:/networkStore:Z"
-    deploy:
-      resources:
-        limits:
-          memory: ${ANY_SYNC_DAEMONS_MEMORY_LIMIT:-}
+      - code:/code
+      - node3_storage:/storage
+      - node3_any_storage:/anyStorage
+      - node3_network_store:/networkStore
     restart: unless-stopped
 
   any-sync-consensusnode:
@@ -181,15 +162,10 @@ services:
       - "${ANY_SYNC_CONSENSUSNODE_QUIC_PORT}:${ANY_SYNC_CONSENSUSNODE_QUIC_PORT}/udp"
       - "${ANY_SYNC_CONSENSUSNODE_METRIC_ADDR}:8000"
     volumes:
-      - ./etc/any-sync-consensusnode:/etc/any-sync-consensusnode:Z
-      - "${STORAGE_DIR}/networkStore/any-sync-consensusnode:/networkStore:Z"
-    deploy:
-      resources:
-        limits:
-          memory: ${ANY_SYNC_DAEMONS_MEMORY_LIMIT:-}
+      - code:/code
+      - consensusnode_network_store:/networkStore
     restart: unless-stopped
 
-  # any-sync-netcheck
   netcheck:
     image: "ghcr.io/anyproto/any-sync-tools:${ANY_SYNC_TOOLS_VERSION}"
     pull_policy: always
@@ -202,11 +178,29 @@ services:
       - any-sync-node-2
       - any-sync-node-3
     volumes:
-      - "${STORAGE_DIR}:/code/storage:Z"
+      - storage:/code/storage
     command: ["tail", "-f", "/dev/null"]
     stop_signal: SIGKILL
     tty: true
     healthcheck:
-      test: any-sync-netcheck -c /code/storage/docker-generateconfig/nodes.yml 2>&1| grep -E 'netcheck\s+success'
+      test: any-sync-netcheck -c /code/storage/docker-generateconfig/nodes.yml 2>&1 | grep -E 'netcheck\s+success'
       interval: 10s
       start_period: 5s
+
+volumes:
+  code:
+  storage:
+  mongo_data:
+  redis_data:
+  coordinator_network_store:
+  filenode_network_store:
+  node1_storage:
+  node1_any_storage:
+  node1_network_store:
+  node2_storage:
+  node2_any_storage:
+  node2_network_store:
+  node3_storage:
+  node3_any_storage:
+  node3_network_store:
+  consensusnode_network_store:
