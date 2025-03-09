@@ -28,13 +28,15 @@ services:
         condition: service_completed_successfully
     image: "mongo:${MONGO_VERSION}"
     restart: unless-stopped
-    command: ["--replSet", "${MONGO_REPLICA_SET}", "--port", "${MONGO_1_PORT}"]
+    command: [ "--replSet", "${MONGO_REPLICA_SET}", "--port", "${MONGO_1_PORT}" ]
     volumes:
       - mongo_data:/data/db
     healthcheck:
       test: test $$(mongosh --port ${MONGO_1_PORT} --quiet --eval "try {rs.initiate({_id:'${MONGO_REPLICA_SET}',members:[{_id:0,host:\"mongo-1:${MONGO_1_PORT}\"}]})} catch(e) {rs.status().ok}") -eq 1
       interval: 10s
-      start_period: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
     ports:
       - "127.0.0.1:${MONGO_1_PORT}:${MONGO_1_PORT}"
 
@@ -44,11 +46,11 @@ services:
         condition: service_completed_successfully
     image: "redis/redis-stack-server:${REDIS_VERSION}"
     restart: unless-stopped
-    command: ["redis-server", "--port", "${REDIS_PORT}", "--dir", "/data/", "--appendonly", "yes", "--maxmemory", "${REDIS_MAXMEMORY}", "--maxmemory-policy", "noeviction", "--protected-mode", "no", "--loadmodule", "/opt/redis-stack/lib/redisbloom.so"]
+    command: [ "redis-server", "--port", "${REDIS_PORT}", "--dir", "/data/", "--appendonly", "yes", "--maxmemory", "${REDIS_MAXMEMORY}", "--maxmemory-policy", "noeviction", "--protected-mode", "no", "--loadmodule", "/opt/redis-stack/lib/redisbloom.so" ]
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "-p", "${REDIS_PORT}", "incr", "ping"]
+      test: [ "CMD", "redis-cli", "--raw", "-p", "${REDIS_PORT}", "incr", "ping" ]
       interval: 10s
       timeout: 30s
       retries: 3
@@ -64,7 +66,7 @@ services:
         condition: service_healthy
     volumes:
       - code:/code
-    command: ["/bin/any-sync-confapply", "-c", "/code/etc/any-sync-coordinator/config.yml", "-n", "/code/etc/any-sync-coordinator/network.yml", "-e"]
+    command: [ "/bin/any-sync-confapply", "-c", "/code/etc/any-sync-coordinator/config.yml", "-n", "/code/etc/any-sync-coordinator/network.yml", "-e" ]
     restart: "no"
 
   any-sync-coordinator:
@@ -179,7 +181,7 @@ services:
       - any-sync-node-3
     volumes:
       - storage:/code/storage
-    command: ["tail", "-f", "/dev/null"]
+    command: [ "tail", "-f", "/dev/null" ]
     stop_signal: SIGKILL
     tty: true
     healthcheck:
