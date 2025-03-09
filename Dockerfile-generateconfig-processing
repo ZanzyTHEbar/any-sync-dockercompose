@@ -9,7 +9,7 @@ WORKDIR /tmp
 COPY docker-generateconfig/processing.sh /tmp/processing.sh
 COPY docker-generateconfig/setListenIp.py /tmp/setListenIp.py
 COPY docker-generateconfig/etc/ /tmp/etc/
-COPY docker-generateconfig/aws-credentials /tmp/aws-credentials
+COPY docker-generateconfig/etc/aws-credentials /tmp/aws-credentials
 RUN chmod +x /tmp/processing.sh
 
 # Create a wrapper script to run processing.sh
