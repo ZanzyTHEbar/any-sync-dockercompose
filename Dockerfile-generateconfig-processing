@@ -1,16 +1,22 @@
 # syntax=docker/dockerfile:1
 FROM alpine:3.18.4
+
+# Install dependencies
 RUN apk add --no-cache bash yq perl python3 py3-yaml
-# Create a temporary directory for the script
+
+# Create a temporary directory for the script and Python file
 WORKDIR /tmp
 COPY docker-generateconfig/processing.sh /tmp/processing.sh
+COPY docker-generateconfig/setListenIp.py /tmp/setListenIp.py
 RUN chmod +x /tmp/processing.sh
 
-# Create a wrapper script to run processing.sh and ensure output goes to /code
+# Create a wrapper script to run processing.sh
 RUN echo '#!/bin/bash' > /tmp/run-processing.sh && \
     echo 'bash /tmp/processing.sh' >> /tmp/run-processing.sh && \
     chmod +x /tmp/run-processing.sh
 
+# Set the working directory for output
 WORKDIR /code
 
+# Run the wrapper script
 ENTRYPOINT ["/tmp/run-processing.sh"]

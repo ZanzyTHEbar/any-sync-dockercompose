@@ -4,7 +4,7 @@ s3Store:
     maxThreads: 16
     profile: default
     region: us-east-1
-    endpoint: http://minio:%MINIO_PORT%
+    endpoint: %S3_ENDPOINT%
     forcePathStyle: true # 'true' for self-hosted S3 Object Storage
 
 redis:

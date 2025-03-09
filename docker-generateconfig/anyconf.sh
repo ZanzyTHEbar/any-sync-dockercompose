@@ -1,8 +1,6 @@
 #!/bin/bash
 
 echo "INFO: $0 start"
-echo "INFO: loading .env file"
-source .env
 
 echo "INFO: create persistent config dir='./storage/docker-generateconfig'"
 install -d ./storage/docker-generateconfig
@@ -14,21 +12,21 @@ if [[ -s .networkId ]]; then
 else
     echo "INFO: saved networkId not found, creating"
     anyconf create-network
-    cat nodes.yml | grep '^networkId:' | awk '{print $NF}' > .networkId
-    cat account.yml | yq '.account.signingKey' > .networkSigningKey
+    cat nodes.yml | grep '^networkId:' | awk '{print $NF}' >.networkId
+    cat account.yml | yq '.account.signingKey' >.networkSigningKey
 
     if [ $? -ne 0 ]; then
         echo "ERROR: Failed network creations!"
         exit 1
     fi
 fi
-NETWORK_ID=$( cat .networkId)
-NETWORK_SIGNING_KEY=$( cat .networkSigningKey )
+NETWORK_ID=$(cat .networkId)
+NETWORK_SIGNING_KEY=$(cat .networkSigningKey)
 
 if [[ -s account0.yml ]]; then
     echo "INFO: saved nodes and accounts configuration found, skipping"
 else
-    echo "INFO: save nodes and accounts not found, createing"
+    echo "INFO: save nodes and accounts not found, creating"
     anyconf generate-nodes \
         --t tree \
         --t tree \
@@ -41,7 +39,7 @@ else
         --addresses ${ANY_SYNC_NODE_3_ADDRESSES} \
         --addresses ${ANY_SYNC_COORDINATOR_ADDRESSES} \
         --addresses ${ANY_SYNC_FILENODE_ADDRESSES} \
-        --addresses ${ANY_SYNC_CONSENSUSNODE_ADDRESSES} \
+        --addresses ${ANY_SYNC_CONSENSUSNODE_ADDRESSES}
 
     if [ $? -ne 0 ]; then
         echo "ERROR: Failed to generate nodes and accounts!"
