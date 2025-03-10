@@ -3,7 +3,7 @@
 echo "INFO: $0 start"
 
 # Set file paths
-DEST_PATH="./etc"
+DEST_PATH="/code/etc"
 NETWORK_FILE="/code/storage/docker-generateconfig/network.yml"
 
 echo "INFO: Create directories for all node types"
