@@ -85,12 +85,7 @@ services:
     volumes:
       - code:/code
       - coordinator_network_store:/networkStore
-      - type: volume
-        source: code
-        target: /etc/any-sync-coordinator
-        volume:
-          bind:
-            subpath: etc/any-sync-coordinator
+      - code/etc:/etc
     restart: unless-stopped
 
   any-sync-filenode:
@@ -107,12 +102,7 @@ services:
     volumes:
       - code:/code
       - filenode_network_store:/networkStore
-      - type: volume
-        source: code
-        target: /etc/any-sync-filenode
-        volume:
-          bind:
-            subpath: etc/any-sync-filenode
+      - code/etc:/etc
     restart: unless-stopped
 
   any-sync-node-1:
@@ -130,12 +120,7 @@ services:
       - node1_storage:/storage
       - node1_any_storage:/anyStorage
       - node1_network_store:/networkStore
-      - type: volume
-        source: code
-        target: /etc/any-sync-node-1
-        volume:
-          bind:
-            subpath: etc/any-sync-node-1
+      - code/etc:/etc
     restart: unless-stopped
 
   any-sync-node-2:
@@ -153,12 +138,7 @@ services:
       - node2_storage:/storage
       - node2_any_storage:/anyStorage
       - node2_network_store:/networkStore
-      - type: volume
-        source: code
-        target: /etc/any-sync-node-2
-        volume:
-          bind:
-            subpath: etc/any-sync-node-2
+      - code/etc:/etc
     restart: unless-stopped
 
   any-sync-node-3:
@@ -176,12 +156,7 @@ services:
       - node3_storage:/storage
       - node3_any_storage:/anyStorage
       - node3_network_store:/networkStore
-      - type: volume
-        source: code
-        target: /etc/any-sync-node-3
-        volume:
-          bind:
-            subpath: etc/any-sync-node-3
+      - code/etc:/etc
     restart: unless-stopped
 
   any-sync-consensusnode:
@@ -196,12 +171,7 @@ services:
     volumes:
       - code:/code
       - consensusnode_network_store:/networkStore
-      - type: volume
-        source: code
-        target: /etc/any-sync-consensusnode
-        volume:
-          bind:
-            subpath: etc/any-sync-consensusnode
+      - code/etc:/etc
     restart: unless-stopped
 
   netcheck:
