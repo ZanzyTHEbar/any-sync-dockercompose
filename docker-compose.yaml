@@ -85,7 +85,7 @@ services:
     volumes:
       - code:/code
       - coordinator_network_store:/networkStore
-      - ./code/etc/any-sync-coordinator:/etc/any-sync-coordinator
+    entrypoint: [ "/bin/sh", "-c", "mkdir -p /etc/any-sync-coordinator && cp /code/etc/any-sync-coordinator/* /etc/any-sync-coordinator/ && /bin/any-sync-coordinator" ]
     restart: unless-stopped
 
   any-sync-filenode:
@@ -102,7 +102,7 @@ services:
     volumes:
       - code:/code
       - filenode_network_store:/networkStore
-      - ./code/etc/any-sync-filenode:/etc/any-sync-filenode
+    entrypoint: [ "/bin/sh", "-c", "mkdir -p /etc/any-sync-filenode && cp /code/etc/any-sync-filenode/* /etc/any-sync-filenode/ && /bin/any-sync-filenode" ]
     restart: unless-stopped
 
   any-sync-node-1:
@@ -120,7 +120,7 @@ services:
       - node1_storage:/storage
       - node1_any_storage:/anyStorage
       - node1_network_store:/networkStore
-      - ./code/etc/any-sync-node-1:/etc/any-sync-node
+    entrypoint: [ "/bin/sh", "-c", "mkdir -p /etc/any-sync-node && cp /code/etc/any-sync-node-1/* /etc/any-sync-node/ && /bin/any-sync-node" ]
     restart: unless-stopped
 
   any-sync-node-2:
@@ -138,7 +138,7 @@ services:
       - node2_storage:/storage
       - node2_any_storage:/anyStorage
       - node2_network_store:/networkStore
-      - ./code/etc/any-sync-node-2:/etc/any-sync-node
+    entrypoint: [ "/bin/sh", "-c", "mkdir -p /etc/any-sync-node && cp /code/etc/any-sync-node-2/* /etc/any-sync-node/ && /bin/any-sync-node" ]
     restart: unless-stopped
 
   any-sync-node-3:
@@ -156,7 +156,7 @@ services:
       - node3_storage:/storage
       - node3_any_storage:/anyStorage
       - node3_network_store:/networkStore
-      - ./code/etc/any-sync-node-3:/etc/any-sync-node
+    entrypoint: [ "/bin/sh", "-c", "mkdir -p /etc/any-sync-node && cp /code/etc/any-sync-node-3/* /etc/any-sync-node/ && /bin/any-sync-node" ]
     restart: unless-stopped
 
   any-sync-consensusnode:
@@ -171,7 +171,7 @@ services:
     volumes:
       - code:/code
       - consensusnode_network_store:/networkStore
-      - ./code/etc/any-sync-consensusnode:/etc/any-sync-consensusnode
+    entrypoint: [ "/bin/sh", "-c", "mkdir -p /etc/any-sync-consensusnode && cp /code/etc/any-sync-consensusnode/* /etc/any-sync-consensusnode/ && /bin/any-sync-consensusnode" ]
     restart: unless-stopped
 
   netcheck:
