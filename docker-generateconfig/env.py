@@ -7,7 +7,7 @@ import requests
 import re
 
 cfg = {
-    'inputFile': '.env.default',
+    'inputFile': '.env.coolify',
     'overrideFile': '.env.override',
     'outputFile': '.env',
     'overrideVarMap': {

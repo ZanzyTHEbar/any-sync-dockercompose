@@ -2,9 +2,10 @@
 
 echo "INFO: $0 start"
 
-echo "INFO: create persistent config dir='/storage/docker-generateconfig'"
-install -d /storage/docker-generateconfig
-cd /storage/docker-generateconfig
+# Modified persistent config directory to use shared volume path
+echo "INFO: create persistent config dir='/code/storage/docker-generateconfig'"
+install -d /code/storage/docker-generateconfig
+cd /code/storage/docker-generateconfig
 
 # generate networkId
 if [[ -s .networkId ]]; then

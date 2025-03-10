@@ -4,7 +4,7 @@ echo "INFO: $0 start"
 
 # Set file paths
 DEST_PATH="./etc"
-NETWORK_FILE="/storage/docker-generateconfig/network.yml"
+NETWORK_FILE="/code/storage/docker-generateconfig/network.yml"
 
 echo "INFO: Create directories for all node types"
 for NODE_TYPE in node-1 node-2 node-3 filenode coordinator consensusnode; do
@@ -16,36 +16,41 @@ echo "INFO: Create directory for aws credentials ${DEST_PATH}/.aws"
 mkdir -p "${DEST_PATH}/.aws"
 
 echo "INFO: Configure external listen host"
-python /tmp/setListenIp.py "/storage/docker-generateconfig/nodes.yml" "/storage/docker-generateconfig/nodesProcessed.yml"
+# Added check for nodes.yml existence
+if [ ! -f "/code/storage/docker-generateconfig/nodes.yml" ]; then
+    echo "ERROR: /code/storage/docker-generateconfig/nodes.yml not found. Exiting."
+    exit 1
+fi
+python /tmp/setListenIp.py "/code/storage/docker-generateconfig/nodes.yml" "/code/storage/docker-generateconfig/nodesProcessed.yml"
 
 echo "INFO: Create config for clients"
-cp "/storage/docker-generateconfig/nodesProcessed.yml" "${DEST_PATH}/client.yml"
+cp "/code/storage/docker-generateconfig/nodesProcessed.yml" "${DEST_PATH}/client.yml"
 
 echo "INFO: Generate network file"
-yq eval '. as $item | {"network": $item}' --indent 2 /storage/docker-generateconfig/nodesProcessed.yml >"${NETWORK_FILE}"
+yq eval '. as $item | {"network": $item}' --indent 2 "/code/storage/docker-generateconfig/nodesProcessed.yml" >"${NETWORK_FILE}"
 
 echo "INFO: Generate config files for 3 nodes"
 for i in {0..2}; do
     cat \
         "${NETWORK_FILE}" \
         /tmp/etc/common.yml \
-        storage/docker-generateconfig/account${i}.yml \
+        "/code/storage/docker-generateconfig/account${i}.yml" \
         /tmp/etc/node-$((i + 1)).yml \
         >"${DEST_PATH}/any-sync-node-$((i + 1))/config.yml"
 done
 
 echo "INFO: Generate config files for coordinator"
-cat "${NETWORK_FILE}" /tmp/etc/common.yml storage/docker-generateconfig/account3.yml /tmp/etc/coordinator.yml \
+cat "${NETWORK_FILE}" /tmp/etc/common.yml "/code/storage/docker-generateconfig/account3.yml" /tmp/etc/coordinator.yml \
     >${DEST_PATH}/any-sync-coordinator/config.yml
 echo "INFO: Generate config files for filenode"
-cat "${NETWORK_FILE}" /tmp/etc/common.yml storage/docker-generateconfig/account4.yml /tmp/etc/filenode.yml \
+cat "${NETWORK_FILE}" /tmp/etc/common.yml "/code/storage/docker-generateconfig/account4.yml" /tmp/etc/filenode.yml \
     >${DEST_PATH}/any-sync-filenode/config.yml
 echo "INFO: Generate config files for consensusnode"
-cat "${NETWORK_FILE}" /tmp/etc/common.yml storage/docker-generateconfig/account5.yml /tmp/etc/consensusnode.yml \
+cat "${NETWORK_FILE}" /tmp/etc/common.yml "/code/storage/docker-generateconfig/account5.yml" /tmp/etc/consensusnode.yml \
     >${DEST_PATH}/any-sync-consensusnode/config.yml
 
 echo "INFO: Copy network file to coordinator directory"
-cp "storage/docker-generateconfig/nodesProcessed.yml" "${DEST_PATH}/any-sync-coordinator/network.yml"
+cp "/code/storage/docker-generateconfig/nodesProcessed.yml" "${DEST_PATH}/any-sync-coordinator/network.yml"
 
 echo "INFO: Copy aws credentials config"
 cp "/tmp/aws-credentials" "${DEST_PATH}/.aws/credentials"

@@ -9,6 +9,8 @@ services:
       - code:/code
       - storage:/code/storage
     restart: "no"
+    labels:
+      coolify.managed: "true"
 
   generateconfig-processing:
     depends_on:
@@ -21,6 +23,8 @@ services:
       - code:/code
       - storage:/code/storage
     restart: "no"
+    labels:
+      coolify.managed: "true"
 
   mongo-1:
     depends_on:
@@ -39,6 +43,8 @@ services:
       start_period: 30s
     ports:
       - "127.0.0.1:${MONGO_1_PORT}:${MONGO_1_PORT}"
+    labels:
+      coolify.managed: "true"
 
   redis:
     depends_on:
@@ -56,6 +62,8 @@ services:
       retries: 3
     ports:
       - "127.0.0.1:${REDIS_PORT}:${REDIS_PORT}"
+    labels:
+      coolify.managed: "true"
 
   any-sync-coordinator_bootstrap:
     image: "ghcr.io/anyproto/any-sync-coordinator:${ANY_SYNC_COORDINATOR_VERSION}"
@@ -68,6 +76,8 @@ services:
       - code:/code
     command: [ "/bin/any-sync-confapply", "-c", "/code/etc/any-sync-coordinator/config.yml", "-n", "/code/etc/any-sync-coordinator/network.yml", "-e" ]
     restart: "no"
+    labels:
+      coolify.managed: "true"
 
   any-sync-coordinator:
     image: "ghcr.io/anyproto/any-sync-coordinator:${ANY_SYNC_COORDINATOR_VERSION}"
@@ -86,6 +96,9 @@ services:
       - code:/code
       - coordinator_network_store:/networkStore
     restart: unless-stopped
+    labels:
+      coolify.managed: "true"
+      #coolify.healthcheck: "/health"
 
   any-sync-filenode:
     image: "ghcr.io/anyproto/any-sync-filenode:${ANY_SYNC_FILENODE_VERSION}"
@@ -102,6 +115,9 @@ services:
       - code:/code
       - filenode_network_store:/networkStore
     restart: unless-stopped
+    labels:
+      coolify.managed: "true"
+      #coolify.healthcheck: "/health"
 
   any-sync-node-1:
     image: "ghcr.io/anyproto/any-sync-node:${ANY_SYNC_NODE_VERSION}"
@@ -119,6 +135,9 @@ services:
       - node1_any_storage:/anyStorage
       - node1_network_store:/networkStore
     restart: unless-stopped
+    labels:
+      coolify.managed: "true"
+      #coolify.healthcheck: "/health"
 
   any-sync-node-2:
     image: "ghcr.io/anyproto/any-sync-node:${ANY_SYNC_NODE_VERSION}"
@@ -136,6 +155,9 @@ services:
       - node2_any_storage:/anyStorage
       - node2_network_store:/networkStore
     restart: unless-stopped
+    labels:
+      coolify.managed: "true"
+      #coolify.healthcheck: "/health"
 
   any-sync-node-3:
     image: "ghcr.io/anyproto/any-sync-node:${ANY_SYNC_NODE_VERSION}"
@@ -153,6 +175,9 @@ services:
       - node3_any_storage:/anyStorage
       - node3_network_store:/networkStore
     restart: unless-stopped
+    labels:
+      coolify.managed: "true"
+      #coolify.healthcheck: "/health"
 
   any-sync-consensusnode:
     image: "ghcr.io/anyproto/any-sync-consensusnode:${ANY_SYNC_CONSENSUSNODE_VERSION}"
@@ -167,6 +192,9 @@ services:
       - code:/code
       - consensusnode_network_store:/networkStore
     restart: unless-stopped
+    labels:
+      coolify.managed: "true"
+      #coolify.healthcheck: "/health"
 
   netcheck:
     image: "ghcr.io/anyproto/any-sync-tools:${ANY_SYNC_TOOLS_VERSION}"
@@ -188,6 +216,8 @@ services:
       test: any-sync-netcheck -c /code/storage/docker-generateconfig/nodes.yml 2>&1 | grep -E 'netcheck\s+success'
       interval: 10s
       start_period: 5s
+    labels:
+      coolify.managed: "true"
 
 volumes:
   code:
@@ -206,3 +236,13 @@ volumes:
   node3_any_storage:
   node3_network_store:
   consensusnode_network_store:
+  data:
+    driver: local
+  logs:
+    driver: local
+
+networks:
+  any-sync-network:
+    driver: bridge
+    labels:
+      coolify.managed: "true"

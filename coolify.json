@@ -1,0 +1,42 @@
+{
+    "name": "Any-Sync",
+    "description": "Self-hosted synchronized storage platform",
+    "logo": "https://raw.githubusercontent.com/anyproto/any-sync/main/assets/logo.png",
+    "tags": [
+        "storage",
+        "sync",
+        "database",
+        "file-sharing"
+    ],
+    "services": {
+        "main": {
+            "image": "docker-compose.yml",
+            "port": "${ANY_SYNC_NODE_1_API_SERVER_ADDR}"
+        }
+    },
+    "env": {
+        "template": ".env.coolify"
+    },
+    "secrets": [
+        "AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY"
+    ],
+    "volumes": [
+        {
+            "name": "data",
+            "mount": "/data"
+        },
+        {
+            "name": "logs",
+            "mount": "/logs"
+        },
+        {
+            "name": "mongo_data",
+            "mount": "/data/db"
+        },
+        {
+            "name": "redis_data",
+            "mount": "/data"
+        }
+    ]
+}
