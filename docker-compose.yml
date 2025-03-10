@@ -32,11 +32,11 @@ services:
     volumes:
       - mongo_data:/data/db
     healthcheck:
-      test: test $$(mongosh --port ${MONGO_1_PORT} --quiet --eval "try {rs.initiate({_id:'${MONGO_REPLICA_SET}',members:[{_id:0,host:\"127.0.0.1:${MONGO_1_PORT}\"}]})} catch(e) {rs.status().ok}") -eq 1
+      test: test $$(mongosh --port ${MONGO_1_PORT} --quiet --eval "try {rs.initiate({_id:'${MONGO_REPLICA_SET}',members:[{_id:0,host:\"mongo-1:${MONGO_1_PORT}\"}]})} catch(e) {rs.status().ok}") -eq 1
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 60s
+      start_period: 30s
     ports:
       - "127.0.0.1:${MONGO_1_PORT}:${MONGO_1_PORT}"
 
