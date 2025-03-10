@@ -2,9 +2,9 @@
 
 echo "INFO: $0 start"
 
-echo "INFO: create persistent config dir='./storage/docker-generateconfig'"
-install -d ./storage/docker-generateconfig
-cd ./storage/docker-generateconfig
+echo "INFO: create persistent config dir='/storage/docker-generateconfig'"
+install -d /storage/docker-generateconfig
+cd /storage/docker-generateconfig
 
 # generate networkId
 if [[ -s .networkId ]]; then

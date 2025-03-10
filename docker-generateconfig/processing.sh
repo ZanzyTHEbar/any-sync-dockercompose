@@ -4,7 +4,7 @@ echo "INFO: $0 start"
 
 # Set file paths
 DEST_PATH="./etc"
-NETWORK_FILE="./storage/docker-generateconfig/network.yml"
+NETWORK_FILE="/storage/docker-generateconfig/network.yml"
 
 echo "INFO: Create directories for all node types"
 for NODE_TYPE in node-1 node-2 node-3 filenode coordinator consensusnode; do
@@ -16,13 +16,13 @@ echo "INFO: Create directory for aws credentials ${DEST_PATH}/.aws"
 mkdir -p "${DEST_PATH}/.aws"
 
 echo "INFO: Configure external listen host"
-python /tmp/setListenIp.py "./storage/docker-generateconfig/nodes.yml" "./storage/docker-generateconfig/nodesProcessed.yml"
+python /tmp/setListenIp.py "/storage/docker-generateconfig/nodes.yml" "/storage/docker-generateconfig/nodesProcessed.yml"
 
 echo "INFO: Create config for clients"
-cp "./storage/docker-generateconfig/nodesProcessed.yml" "${DEST_PATH}/client.yml"
+cp "/storage/docker-generateconfig/nodesProcessed.yml" "${DEST_PATH}/client.yml"
 
 echo "INFO: Generate network file"
-yq eval '. as $item | {"network": $item}' --indent 2 ./storage/docker-generateconfig/nodesProcessed.yml >"${NETWORK_FILE}"
+yq eval '. as $item | {"network": $item}' --indent 2 /storage/docker-generateconfig/nodesProcessed.yml >"${NETWORK_FILE}"
 
 echo "INFO: Generate config files for 3 nodes"
 for i in {0..2}; do
