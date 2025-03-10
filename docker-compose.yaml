@@ -158,7 +158,6 @@ services:
       - node3_network_store:/networkStore
       - code/etc/any-sync-node:/etc/any-sync-node
     restart: unless-stopped
-    ommand: [ "/bin/any-sync-node", "--config", "/code/etc/any-sync-node/config.yml" ]
 
   any-sync-consensusnode:
     image: "ghcr.io/anyproto/any-sync-consensusnode:${ANY_SYNC_CONSENSUSNODE_VERSION}"
