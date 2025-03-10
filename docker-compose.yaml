@@ -85,6 +85,7 @@ services:
     volumes:
       - code:/code
       - coordinator_network_store:/networkStore
+      - code/etc/any-sync-coordinator:/etc/any-sync-coordinator
     restart: unless-stopped
 
   any-sync-filenode:
@@ -101,6 +102,7 @@ services:
     volumes:
       - code:/code
       - filenode_network_store:/networkStore
+      - code/etc/any-sync-filenode:/etc/any-sync-filenode
     restart: unless-stopped
 
   any-sync-node-1:
@@ -118,6 +120,7 @@ services:
       - node1_storage:/storage
       - node1_any_storage:/anyStorage
       - node1_network_store:/networkStore
+      - code/etc/any-sync-node:/etc/any-sync-node
     restart: unless-stopped
 
   any-sync-node-2:
@@ -135,6 +138,7 @@ services:
       - node2_storage:/storage
       - node2_any_storage:/anyStorage
       - node2_network_store:/networkStore
+      - code/etc/any-sync-node:/etc/any-sync-node
     restart: unless-stopped
 
   any-sync-node-3:
@@ -152,7 +156,9 @@ services:
       - node3_storage:/storage
       - node3_any_storage:/anyStorage
       - node3_network_store:/networkStore
+      - code/etc/any-sync-node:/etc/any-sync-node
     restart: unless-stopped
+    ommand: [ "/bin/any-sync-node", "--config", "/code/etc/any-sync-node/config.yml" ]
 
   any-sync-consensusnode:
     image: "ghcr.io/anyproto/any-sync-consensusnode:${ANY_SYNC_CONSENSUSNODE_VERSION}"
@@ -166,6 +172,7 @@ services:
     volumes:
       - code:/code
       - consensusnode_network_store:/networkStore
+      - code/etc/any-sync-consensusnode:/etc/any-sync-consensusnode
     restart: unless-stopped
 
   netcheck:
